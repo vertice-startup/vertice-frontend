@@ -52,13 +52,16 @@ function scrollAndFocus(element) {
 
 function showPixPayment(pixCopyAndPaste, pixQrCodeUrl) {
   pixCopyPaste.value = pixCopyAndPaste;
-  pixQrCode.src = pixQrCodeUrl;
+  pixQrCode.hidden = !pixQrCodeUrl;
+  if (pixQrCodeUrl) pixQrCode.src = pixQrCodeUrl;
   payerForm.hidden = true;
   pixPaymentContent.hidden = false;
   pixPaymentDetails.hidden = false;
   paymentConfirmation.hidden = true;
   pixTitle.textContent = "Agora, realize o Pix de R$ 49,90.";
-  pixDescription.textContent = "Use o QR Code ou o Pix Copia e Cola abaixo. Seu relatório será liberado após a conferência do pagamento.";
+  pixDescription.textContent = pixQrCodeUrl
+    ? "Use o QR Code ou o Pix Copia e Cola abaixo. O pagamento será conferido manualmente antes da liberação do relatório."
+    : "Use o Pix Copia e Cola abaixo. O pagamento será conferido manualmente antes da liberação do relatório.";
 }
 
 function showPaymentPendingState() {
@@ -68,8 +71,8 @@ function showPaymentPendingState() {
   pixPaymentDetails.hidden = true;
   paymentConfirmation.hidden = false;
   reportStatusLink.href = `/report?session_id=${encodeURIComponent(sessionId)}`;
-  pixTitle.textContent = "Seu relatório está sendo preparado.";
-  pixDescription.textContent = "Recebemos sua confirmação. Aguarde a conferência e a preparação do seu relatório.";
+  pixTitle.textContent = "Aguardando conferência do Pix.";
+  pixDescription.textContent = "Recebemos seu aviso de pagamento. Guarde o link enviado pelo WhatsApp; o acesso depende da conferência manual.";
   message.textContent = "";
   scrollAndFocus(paymentConfirmation);
 }
@@ -156,7 +159,7 @@ paymentButton.addEventListener("click", async () => {
     if (payerDetailsRegistered) {
       showPixPayment(pixCopyAndPaste, pixQrCodeUrl);
       message.textContent = "Use uma das opções Pix abaixo para pagar.";
-      scrollAndFocus(pixQrCode);
+      scrollAndFocus(pixQrCode.hidden ? pixCopyPaste : pixQrCode);
     } else {
       pixPaymentContent.hidden = true;
       payerForm.hidden = false;
@@ -172,7 +175,8 @@ paymentButton.addEventListener("click", async () => {
 });
 
 pixQrCode.addEventListener("error", () => {
-  if (!pixQrCode.src.endsWith("pix-qrcode-placeholder.svg")) pixQrCode.src = "/pix-qrcode-placeholder.svg";
+  pixQrCode.hidden = true;
+  pixDescription.textContent = "O QR Code não está disponível. Use o Pix Copia e Cola abaixo; o pagamento será conferido manualmente.";
 });
 
 copyPixButton.addEventListener("click", async () => {
@@ -204,14 +208,14 @@ payerForm.addEventListener("submit", async (event) => {
     const body = await response.json();
     if (!response.ok) throw new Error(body.error ?? "Não foi possível registrar os dados.");
     if (body.status === "paid") {
-      message.textContent = "Pagamento já confirmado. Seu relatório está disponível.";
+      message.textContent = "Pagamento já aprovado. Consulte o status pelo link enviado no WhatsApp.";
       return;
     }
     payerDetailsRegistered = true;
     window.sessionStorage.setItem(payerDetailsStorageKey, "true");
     showPixPayment(pixCopyAndPaste, pixQrCodeUrl);
     message.textContent = "Dados registrados. Use uma das opções Pix abaixo para pagar.";
-    scrollAndFocus(pixQrCode);
+    scrollAndFocus(pixQrCode.hidden ? pixCopyPaste : pixQrCode);
   } catch (error) {
     message.textContent = error instanceof Error ? error.message : "Não foi possível registrar os dados.";
   } finally {
@@ -235,7 +239,7 @@ paymentReportedButton.addEventListener("click", async () => {
     const body = await response.json();
     if (!response.ok) throw new Error(body.error ?? "Não foi possível registrar a confirmação.");
     if (body.status === "paid") {
-      message.textContent = "Pagamento já confirmado. Seu relatório está disponível.";
+      message.textContent = "Pagamento já aprovado. Consulte o status pelo link enviado no WhatsApp.";
       return;
     }
     showPaymentPendingState();
