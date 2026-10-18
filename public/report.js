@@ -1,6 +1,8 @@
 const id = new URLSearchParams(window.location.search).get("session_id");
 const title = document.querySelector("#report-title");
 const copy = document.querySelector("#report-copy");
+const statusPage = document.querySelector("#report-status");
+const documentFrame = document.querySelector("#report-document");
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 async function loadAccess() {
@@ -25,11 +27,16 @@ async function loadAccess() {
       queued: ["Pagamento aprovado.", "Seu relatório entrou na fila de preparação. Volte a esta página em alguns instantes."],
       running: ["Pagamento aprovado.", "Estamos preparando seu relatório. Volte a esta página em alguns instantes."],
       failed: ["Pagamento aprovado.", "Houve um problema na preparação do relatório. Nossa equipe precisa revisar esta sessão."],
-      ready: ["Relatório preparado.", "A visualização do documento ainda não está disponível nesta etapa da integração."],
+      ready: ["Relatório preparado.", "Abrindo seu documento…"],
     };
     const state = states[body.report_status];
     if (!state) throw new Error("Unknown report status");
     [title.textContent, copy.textContent] = state;
+    if (body.report_status === "ready") {
+      documentFrame.src = `${supabaseUrl}/functions/v1/report-document?session_id=${encodeURIComponent(id)}`;
+      documentFrame.hidden = false;
+      statusPage.hidden = true;
+    }
   } catch {
     title.textContent = "Não foi possível validar o acesso.";
     copy.textContent = "Tente novamente em alguns instantes.";
