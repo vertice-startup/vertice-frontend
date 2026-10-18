@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360" role="img" aria-labelledby="title desc">
+  <title id="title">QR Code Pix pendente de configuração</title>
+  <desc id="desc">Substitua este arquivo por public/pix-qrcode.png</desc>
+  <rect width="360" height="360" fill="#ffffff"/>
+  <rect x="22" y="22" width="316" height="316" fill="none" stroke="#18211f" stroke-width="4" stroke-dasharray="8 8"/>
+  <text x="180" y="155" fill="#18211f" font-family="Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle">ENVIE O QR CODE PIX</text>
+  <text x="180" y="185" fill="#63706b" font-family="Arial, sans-serif" font-size="14" text-anchor="middle">para public/pix-qrcode.png</text>
+  <text x="180" y="215" fill="#63706b" font-family="Arial, sans-serif" font-size="14" text-anchor="middle">ou configure PIX_QR_CODE_URL</text>
+</svg>
