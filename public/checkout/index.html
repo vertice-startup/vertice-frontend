@@ -3,36 +3,110 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Relatório completo para validar e estruturar seu negócio." />
-    <title>Vértice — Relatório completo</title>
+    <meta name="description" content="Libere o relatório completo da sua ideia na Vértice." />
+    <meta name="robots" content="noindex" />
+    <title>Vértice · Checkout</title>
+    <link rel="icon" type="image/png" href="/vertice-icone.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/checkout/checkout.css" />
   </head>
   <body>
-    <main>
-      <nav class="nav container" aria-label="Navegação principal"><a class="brand" href="/" aria-label="Vértice, início"><span></span>VÉRTICE</a><span class="nav-status">RELATÓRIO ESTRATÉGICO</span></nav>
-      <section class="hero container">
-        <div class="eyebrow"><i></i> A partir das respostas do seu negócio</div>
-        <h1>Transforme a sua ideia em um <em>plano claro.</em></h1>
-        <p class="hero-copy">Receba uma leitura estruturada do seu negócio: problema, cliente, proposta de valor, modelo de receita e próximos passos.</p>
-        <div class="checkout-card" id="checkout-card">
-          <div><p class="card-label">RELATÓRIO COMPLETO VÉRTICE</p><p class="price">R$ <strong>49,90</strong></p><p class="card-note">Pagamento único · acesso ao relatório desta sessão</p></div>
-          <div class="checkout-action"><button id="payment-button" type="button">Ver instruções Pix <span>↗</span></button><p class="security">Pagamento via Pix · confirmação manual</p></div>
-        </div>
+    <header class="hd" aria-label="Vértice">
+      <a class="brand" href="/" aria-label="Vértice, início"><img src="/img/logo-verde.png" alt="Vértice" /></a>
+      <span class="nav-safe"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>Checkout seguro</span>
+    </header>
+
+    <main class="wrap checkout">
+      <section class="flow" aria-labelledby="checkout-title">
+        <p class="ey entra">Relatório completo</p>
+        <h1 id="checkout-title" class="entra">Libere o relatório completo <span class="hl">da sua ideia.</span></h1>
+        <p class="lead entra">Seu canvas já está montado. O relatório abre os outros capítulos: problema, cliente, proposta de valor, modelo de receita e o teste pra validar antes de investir.</p>
+
+        <ol class="steps entra" id="checkout-steps" aria-label="Etapas do pagamento">
+          <li data-step="1" class="is-current"><b>1</b><span>Seus dados</span></li>
+          <li data-step="2"><b>2</b><span>Pagamento Pix</span></li>
+          <li data-step="3"><b>3</b><span>Confirmação</span></li>
+        </ol>
+
         <p class="integration-message" id="integration-message" aria-live="polite"></p>
-        <section class="pix-instructions" id="pix-instructions" hidden aria-labelledby="pix-title">
-          <div><p class="eyebrow"><i></i> Confirmação de dados</p><h2 id="pix-title">Antes, informe os dados de quem fará o Pix.</h2><p id="pix-description">Esses dados são de extrema importância para identificarmos o pagamento e liberarmos o seu relatório após a conferência.</p></div>
-          <div class="pix-payment-data"><form class="payer-details" id="payer-details" novalidate><div class="form-field"><label for="payer-name">Nome completo do titular</label><input id="payer-name" name="payer-name" type="text" autocomplete="name" maxlength="160" aria-describedby="payer-name-error" /><p class="field-error" id="payer-name-error" aria-live="polite" hidden></p></div><div class="form-field"><label for="payer-cpf">CPF do titular</label><input id="payer-cpf" name="payer-cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" aria-describedby="payer-cpf-error" /><p class="field-error" id="payer-cpf-error" aria-live="polite" hidden></p></div><button id="payment-sent-button" class="secondary-button" type="submit">Continuar para o Pix</button></form><div id="pix-payment-content" hidden><div id="pix-payment-details"><img id="pix-qr-code" src="/pix-qrcode.png" alt="QR Code Pix para pagamento" tabindex="-1" /><label for="pix-copy-paste">Pix Copia e Cola</label><textarea id="pix-copy-paste" readonly></textarea><button id="copy-pix-button" type="button">Copiar código Pix</button><button id="payment-reported-button" class="secondary-button" type="button">Já realizei o pagamento</button></div><aside class="payment-confirmation" id="payment-confirmation" hidden aria-live="polite" tabindex="-1"><p class="eyebrow"><i></i> Confirmação recebida</p><h3>Seu relatório está sendo preparado.</h3><p class="thank-you">Obrigado por confiar na Vértice. Estamos animados para ajudar a transformar sua ideia em um negócio.</p><p>Nosso time vai gerar um relatório para estruturar sua ideia, com clareza sobre os próximos passos.</p><p class="payment-deadline">A liberação do relatório acontece em até 1 dia útil.</p><p>Teve alguma dúvida ou problema? Fale com nosso suporte.</p><a class="report-status-link" id="report-status-link" href="/report">Ver status do relatório <span aria-hidden="true">↗</span></a><a class="instagram-button" href="https://www.instagram.com/vertice.framework/" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1"></circle></svg><span>Abrir suporte no Instagram</span><b aria-hidden="true">↗</b></a></aside></div></div>
+
+        <section class="panel pix-instructions" id="pix-instructions" hidden aria-labelledby="pix-title">
+          <div class="panel-head">
+            <h2 id="pix-title">Quem vai fazer o Pix?</h2>
+            <p id="pix-description">Usamos o nome e o CPF do titular só para identificar o seu pagamento e liberar o relatório certo.</p>
+          </div>
+
+          <form class="payer-details" id="payer-details" novalidate>
+            <div class="form-field">
+              <label for="payer-name">Nome completo do titular</label>
+              <input id="payer-name" name="payer-name" type="text" autocomplete="name" maxlength="160" placeholder="Como aparece no banco" aria-describedby="payer-name-error" />
+              <p class="field-error" id="payer-name-error" aria-live="polite" hidden></p>
+            </div>
+            <div class="form-field">
+              <label for="payer-cpf">CPF do titular</label>
+              <input id="payer-cpf" name="payer-cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00" aria-describedby="payer-cpf-error" />
+              <p class="field-error" id="payer-cpf-error" aria-live="polite" hidden></p>
+            </div>
+            <button id="payment-sent-button" class="btn btn-pri" type="submit">Continuar para o Pix</button>
+          </form>
+
+          <div id="pix-payment-content" hidden>
+            <div id="pix-payment-details" class="pix-details">
+              <div class="qr"><img id="pix-qr-code" src="/pix-qrcode-placeholder.svg" alt="QR Code Pix para pagamento" tabindex="-1" /></div>
+              <div class="pix-copy">
+                <ol class="howto">
+                  <li>Abra o app do seu banco e escolha <b>Pix</b>.</li>
+                  <li>Escaneie o QR Code ou cole o código abaixo.</li>
+                  <li>Depois de pagar, volte aqui e confirme.</li>
+                </ol>
+                <label for="pix-copy-paste">Pix Copia e Cola</label>
+                <textarea id="pix-copy-paste" readonly rows="3"></textarea>
+                <button id="copy-pix-button" class="btn btn-sec" type="button">Copiar código Pix</button>
+                <button id="payment-reported-button" class="btn btn-pri" type="button">Já realizei o pagamento</button>
+              </div>
+            </div>
+
+            <aside class="payment-confirmation" id="payment-confirmation" hidden aria-live="polite" tabindex="-1">
+              <span class="ok" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+              <h3>Recebemos sua confirmação.</h3>
+              <p class="thank-you">Obrigado por confiar na Vértice. Agora a gente transforma suas respostas num plano claro.</p>
+              <p class="payment-deadline">Seu relatório é liberado em até 1 dia útil, assim que o pagamento for conferido.</p>
+              <a class="btn btn-pri" id="report-status-link" href="/report">Ver status do relatório <svg class="seta" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+              <a class="btn btn-sec" href="https://www.instagram.com/vertice.framework/" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle></svg>Dúvidas? Fale com o suporte</a>
+            </aside>
+          </div>
+        </section>
+
+        <section class="deliverables" aria-labelledby="content-title">
+          <h2 id="content-title" class="ey">O que vem no relatório</h2>
+          <div class="deliv-grid">
+            <article><b>01</b><h3>Diagnóstico</h3><p>Problema, público e contexto competitivo da sua ideia.</p></article>
+            <article><b>02</b><h3>Estrutura</h3><p>Proposta de valor, canais e modelo de receita organizados.</p></article>
+            <article><b>03</b><h3>Próximos passos</h3><p>O teste certo pra validar com o mercado antes de investir.</p></article>
+          </div>
         </section>
       </section>
-      <section class="what-you-get container" aria-labelledby="content-title">
-        <div class="section-heading"><p class="eyebrow"><i></i> O que você recebe</p><h2 id="content-title">Uma visão acionável para o próximo movimento.</h2></div>
-        <div class="deliverables"><article><b>01</b><h3>Diagnóstico</h3><p>Leitura do problema, público e contexto competitivo da sua ideia.</p></article><article><b>02</b><h3>Estratégia</h3><p>Proposta de valor, canais e caminhos para validar o negócio.</p></article><article><b>03</b><h3>Próximos passos</h3><p>Prioridades práticas para sair da hipótese e avançar com confiança.</p></article></div>
-      </section>
+
+      <aside class="summary entra" aria-label="Resumo do pedido">
+        <div class="preco checkout-card" id="checkout-card">
+          <p class="ey">Seu pedido</p>
+          <div class="item"><span>Relatório completo Vértice</span><span class="tag">Esta ideia</span></div>
+          <p class="price"><small>R$</small><strong>29,90</strong></p>
+          <p class="price-note">Pagamento único · sem assinatura</p>
+          <ul>
+            <li><b><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></b>Todos os capítulos do canvas liberados</li>
+            <li><b><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></b>Hipóteses marcadas e o que validar primeiro</li>
+            <li><b><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></b>Liberação em até 1 dia útil</li>
+          </ul>
+          <button id="payment-button" class="btn btn-pri" type="button">Pagar com Pix <svg class="seta" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+          <p class="fino">Pix com conferência manual · seus dados ficam protegidos</p>
+        </div>
+      </aside>
     </main>
-    <footer class="container"><span>VÉRTICE © 2026</span><span>Clareza para construir</span></footer>
+
+    <footer class="wrap foot"><span>Vértice</span><a href="https://www.instagram.com/vertice.framework/" target="_blank" rel="noopener noreferrer">Suporte no Instagram</a></footer>
     <script src="/app.js"></script>
   </body>
 </html>

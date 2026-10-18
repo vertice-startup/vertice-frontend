@@ -17,6 +17,8 @@ const payerCpfError = document.querySelector("#payer-cpf-error");
 const pixTitle = document.querySelector("#pix-title");
 const pixDescription = document.querySelector("#pix-description");
 const message = document.querySelector("#integration-message");
+const checkoutSteps = document.querySelectorAll("#checkout-steps li");
+const paymentButtonLabel = paymentButton.innerHTML;
 const queryParams = new URLSearchParams(window.location.search);
 const sessionId = queryParams.get("session_id");
 const paymentPending = queryParams.get("payment_pending") === "true";
@@ -42,6 +44,16 @@ function sessionIsValid() {
   return sessionId;
 }
 
+function setStep(current) {
+  checkoutSteps.forEach((step) => {
+    const number = Number(step.dataset.step);
+    step.classList.toggle("is-current", number === current);
+    step.classList.toggle("is-done", number < current);
+    if (number === current) step.setAttribute("aria-current", "step");
+    else step.removeAttribute("aria-current");
+  });
+}
+
 function scrollAndFocus(element) {
   window.requestAnimationFrame(() => {
     const top = window.scrollY + element.getBoundingClientRect().top - 72;
@@ -57,8 +69,9 @@ function showPixPayment(pixCopyAndPaste, pixQrCodeUrl) {
   pixPaymentContent.hidden = false;
   pixPaymentDetails.hidden = false;
   paymentConfirmation.hidden = true;
-  pixTitle.textContent = "Agora, realize o Pix de R$ 49,90.";
-  pixDescription.textContent = "Use o QR Code ou o Pix Copia e Cola abaixo. Seu relatório será liberado após a conferência do pagamento.";
+  setStep(2);
+  pixTitle.textContent = "Pague R$ 29,90 com Pix.";
+  pixDescription.textContent = "Use o QR Code ou o Pix Copia e Cola. O relatório é liberado assim que conferirmos o pagamento.";
 }
 
 function showPaymentPendingState() {
@@ -68,8 +81,9 @@ function showPaymentPendingState() {
   pixPaymentDetails.hidden = true;
   paymentConfirmation.hidden = false;
   reportStatusLink.href = `/report?session_id=${encodeURIComponent(sessionId)}`;
+  setStep(3);
   pixTitle.textContent = "Seu relatório está sendo preparado.";
-  pixDescription.textContent = "Recebemos sua confirmação. Aguarde a conferência e a preparação do seu relatório.";
+  pixDescription.textContent = "Estamos conferindo o pagamento. Você pode acompanhar o status pelo link abaixo.";
   message.textContent = "";
   scrollAndFocus(paymentConfirmation);
 }
@@ -160,6 +174,7 @@ paymentButton.addEventListener("click", async () => {
     } else {
       pixPaymentContent.hidden = true;
       payerForm.hidden = false;
+      setStep(1);
       message.textContent = "Informe os dados do titular da conta que fará o Pix.";
       scrollAndFocus(payerName);
     }
@@ -167,7 +182,7 @@ paymentButton.addEventListener("click", async () => {
     message.textContent = error instanceof Error ? error.message : "Não foi possível iniciar o pagamento.";
   } finally {
     paymentButton.disabled = false;
-    paymentButton.innerHTML = "Ver instruções Pix <span>↗</span>";
+    paymentButton.innerHTML = paymentButtonLabel;
   }
 });
 
