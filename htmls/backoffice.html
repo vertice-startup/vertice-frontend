@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics de Validação de Ideias - Copilot WhatsApp</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(229, 231, 235, 1);
+        }
+        .dark .glass-panel {
+            background: rgba(17, 24, 39, 0.85);
+            border-color: rgba(55, 65, 81, 1);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-all duration-300 z-30 absolute md:relative -translate-x-full md:translate-x-0 h-full">
+            <div>
+                <!-- Logo & Brand -->
+                <div class="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800 justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-brand-500/20">
+                            V
+                        </div>
+                        <span class="font-bold text-xl tracking-wide text-slate-800 dark:text-white">Vértice</span>
+                    </div>
+                    <button id="closeSidebar" class="md:hidden text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="p-4 space-y-1">
+                    <a href="#executivo" onclick="switchTab('executivo')" id="nav-btn-executivo" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-brand-600 bg-brand-50 dark:bg-slate-800 dark:text-brand-400 transition-colors">
+                        <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                        <span>Visão Geral</span>
+                    </a>
+                    <a href="#ideias" onclick="switchTab('ideias')" id="nav-btn-ideias" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50 transition-colors">
+                        <i class="fa-solid fa-fire w-5 text-center"></i>
+                        <span>Ideias Quentes</span>
+                    </a>
+                    <a href="#operacao" onclick="switchTab('operacao')" id="nav-btn-operacao" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50 transition-colors">
+                        <i class="fa-solid fa-microchip w-5 text-center"></i>
+                        <span>Operação IA</span>
+                    </a>
+                    <a href="#database" onclick="switchTab('database')" id="nav-btn-database" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50 transition-colors">
+                        <i class="fa-solid fa-database w-5 text-center"></i>
+                        <span>Supabase Status</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Footer Sidebar / User Profile -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex items-center gap-3 p-2 rounded-lg bg-slate-100 dark:bg-slate-800/50">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Avatar" class="w-9 h-9 rounded-full object-cover">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold truncate">Mariana Silva</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">mariana@vertice.io</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+            <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6 z-10">
+                <div class="flex items-center gap-4">
+                    <button id="openSidebar" class="md:hidden text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <!-- Search Input -->
+                    <div class="relative w-48 sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" placeholder="Buscar projetos, ideias..." class="w-full pl-9 pr-4 py-2 rounded-lg text-sm bg-slate-100 dark:bg-slate-800 border-transparent focus:border-brand-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <!-- Method Filter -->
+                    <select id="methodology-filter" onchange="updateDashboardData()" class="hidden sm:block bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-3 py-2 font-medium focus:ring-2 focus:ring-brand-500">
+                        <option value="all">Todas Metodologias (v1.0 & v1.1)</option>
+                        <option value="v1.1">Metodologia v1.1 (Atual)</option>
+                        <option value="v1.0">Metodologia v1.0 (Legado)</option>
+                    </select>
+
+                    <!-- Dark Mode Toggle -->
+                    <button id="themeToggle" onclick="toggleTheme()" class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-moon dark:hidden"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+                    </button>
+
+                    <!-- Notifications -->
+                    <button id="notifBtn" onclick="toggleNotifications()" class="relative w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Notifications Dropdown -->
+            <div id="notifDropdown" class="hidden absolute right-6 top-16 w-80 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-4 z-50">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-sm">Notificações</h4>
+                    <span class="text-xs text-brand-600 font-medium cursor-pointer">Marcar como lidas</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex gap-3 text-sm p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                        <div>
+                            <p class="font-medium text-xs">Novo Canvas concluído (#PRJ-9021)</p>
+                            <span class="text-xs text-slate-400">há 10 min</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 text-sm p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-1"></i>
+                        <div>
+                            <p class="font-medium text-xs">Aumento na latência de respostas IA</p>
+                            <span class="text-xs text-slate-400">há 1 hora</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Scroll Area -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+
+        <section id="tab-executivo" class="tab-content space-y-6">
+            <!-- Top Metric Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-panel p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total de Jornadas</span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <h2 class="text-3xl font-bold">1,248</h2>
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i> +14.2%
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">`conversations` registradas no WhatsApp</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Taxa de Conclusão BMC</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 flex items-center justify-center">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <h2 class="text-3xl font-bold">28.4%</h2>
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i> +3.1%
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">354 empreendedores com 9/9 módulos</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Uso de Áudio vs Texto</span>
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 flex items-center justify-center">
+                            <i data-lucide="mic" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <h2 class="text-3xl font-bold">64.2%</h2>
+                        <span class="text-xs font-medium text-purple-600 dark:text-purple-400">Áudio é preferido</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Média de 3.2 min transcritos por sessão</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tempo Médio de Clareza</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 flex items-center justify-center">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <h2 class="text-3xl font-bold">18.5 min</h2>
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <i data-lucide="trending-down" class="w-3 h-3"></i> -2.4 min
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Até chegar na 1ª versão coerente do BMC</p>
+                </div>
+            </div>
+
+            <!-- Charts Row 1: Funil BMC & Atividade Temporal -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Funil de Estágios do BMC -->
+                <div class="glass-panel p-6 rounded-2xl lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="font-bold text-base">Funil de Progresso dos Módulos do Canvas</h3>
+                                <p class="text-xs text-slate-500">Volumetria de empreendedores que avançam em cada etapa do `venture_profiles`</p>
+                            </div>
+                            <span class="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-600 dark:text-slate-300 font-mono">state.fluxo.etapa_atual</span>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="funnelChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 pt-4 border-t border-slate-200 dark:border-slate-800 text-center text-xs">
+                        <div>
+                            <p class="text-slate-500">Maior Abandono</p>
+                            <p class="font-bold text-rose-600">Estrutura de Custos (-32%)</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500">Avanço Mais Rápido</p>
+                            <p class="font-bold text-emerald-600">Segmentos & Proposta</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500">Revisões Médias/Usuário</p>
+                            <p class="font-bold text-blue-600">4.8 versões por perfil</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formato de Interação (Áudio vs Texto + Status) -->
+                <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-base mb-1">Canais & Formato de Envio</h3>
+                        <p class="text-xs text-slate-500 mb-4">Distribuição de mensagens recebidas (`messages.type`)</p>
+                        <div class="h-52 relative flex items-center justify-center">
+                            <canvas id="formatPieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-xs pt-4 border-t border-slate-200 dark:border-slate-800">
+                        <div class="flex justify-between items-center">
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> Áudio Transcrito</span>
+                            <span class="font-bold">6,840 msgs (64.2%)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Texto Direto</span>
+                            <span class="font-bold">3,810 msgs (35.8%)</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-2 italic">*Áudios têm 3.4x mais detalhes em hipóteses do que respostas por texto.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cohort Retention & Daily Sessions -->
+            <div class="glass-panel p-6 rounded-2xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="font-bold text-base">Engajamento & Retorno de Sessões</h3>
+                        <p class="text-xs text-slate-500">Número diário de mensagens e sessões reutilizadas (`conversation_sessions`)</p>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs font-medium">
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-brand-500"></span> Sessões Ativas</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-sm bg-blue-400"></span> Total de Mensagens</span>
+                    </div>
+                </div>
+                <div class="h-64">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-ideias" class="tab-content hidden space-y-6">
+            <!-- Analytics do Conteúdo Extraído do JSONB -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Principais Dores Mapeadas -->
+                <div class="glass-panel p-5 rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-bold text-sm">Dores Mais Citadas</h4>
+                        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-500"></i>
+                    </div>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <div class="flex justify-between font-medium mb-1">
+                                <span>Ideia espalhada / Dificuldade de estruturar</span>
+                                <span class="font-bold">78%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-rose-500 h-full rounded-full" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between font-medium mb-1">
+                                <span>Não sabe qual fornecedor contratar</span>
+                                <span class="font-bold">62%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-rose-500 h-full rounded-full" style="width: 62%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between font-medium mb-1">
+                                <span>Medo de burocracia (Inpi, CNPJ, Contabilidade)</span>
+                                <span class="font-bold">45%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-rose-500 h-full rounded-full" style="width: 45%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modelos de Receita Pretendidos -->
+                <div class="glass-panel p-5 rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-bold text-sm">Modelos de Monetização Pretendidos</h4>
+                        <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-500"></i>
+                    </div>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <div class="flex justify-between font-medium mb-1">
+                                <span>Assinatura (SaaS / Recorrência)</span>
+                                <span class="font-bold">54%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: 54%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between font-medium mb-1">
+                                <span>Marketplace / Comissão por Transação</span>
+                                <span class="font-bold">31%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: 31%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between font-medium mb-1">
+                                <span>Cobrança por Serviço Pontual</span>
+                                <span class="font-bold">15%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full rounded-full" style="width: 15%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lacunas Críticas que Impedem o Avanço -->
+                <div class="glass-panel p-5 rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-bold text-sm">Principais Lacunas (Unresolved Gaps)</h4>
+                        <i data-lucide="help-circle" class="w-4 h-4 text-amber-500"></i>
+                    </div>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <div class="flex justify-between font-medium mb-1">
+                                <span>Falta de clareza em "Quem Paga" (B2B vs B2C)</span>
+                                <span class="font-bold">69%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-amber-500 h-full rounded-full" style="width: 69%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between font-medium mb-1">
+                                <span>Dependência de fornecedor sem alternativa</span>
+                                <span class="font-bold">51%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-amber-500 h-full rounded-full" style="width: 51%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between font-medium mb-1">
+                                <span>Preço de venda baseado em suposição</span>
+                                <span class="font-bold">48%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-amber-500 h-full rounded-full" style="width: 48%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Startups / Ideas Ranking Table -->
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-base">Mural de Ideias & Maturidade do BMC</h3>
+                        <p class="text-xs text-slate-500">Projetos anonimizados ordenados por preenchimento de módulos e hipóteses validadas</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="relative">
+                            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400"></i>
+                            <input type="text" placeholder="Buscar por tema ou palavra..." class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg pl-8 pr-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500 w-48 sm:w-64">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase font-semibold">
+                                <th class="p-3.5 pl-5">ID / Projeto (Anonimizado)</th>
+                                <th class="p-3.5">Estágio Atual</th>
+                                <th class="p-3.5">Progresso BMC</th>
+                                <th class="p-3.5 text-center">Hipóteses</th>
+                                <th class="p-3.5 text-center">Lacunas Reduzidas</th>
+                                <th class="p-3.5">Última Atividade</th>
+                                <th class="p-3.5 text-right pr-5">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800 font-medium" id="ideas-table-body">
+                            <!-- Rows rendered via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-operacao" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="glass-panel p-4 rounded-xl">
+                    <p class="text-xs text-slate-500">Turnos Totais Processados</p>
+                    <h3 class="text-2xl font-bold mt-1">14,320</h3>
+                    <span class="text-[11px] text-emerald-600 font-medium">99.4% Taxa de Sucesso</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl">
+                    <p class="text-xs text-slate-500">Latência Média da IA (Gemini)</p>
+                    <h3 class="text-2xl font-bold mt-1">2.1s</h3>
+                    <span class="text-[11px] text-emerald-600 font-medium">-0.4s vs versão anterior</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl">
+                    <p class="text-xs text-slate-500">Taxa de Falha de Envio (Z-API)</p>
+                    <h3 class="text-2xl font-bold mt-1">0.6%</h3>
+                    <span class="text-[11px] text-rose-500 font-medium">85 mensagens com retry</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl">
+                    <p class="text-xs text-slate-500">Citações Metodológicas</p>
+                    <h3 class="text-2xl font-bold mt-1">8,410</h3>
+                    <span class="text-[11px] text-blue-600 font-medium">Base `methodology_versions` v1.1</span>
+                </div>
+            </div>
+
+            <!-- Health Logs of Turns -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Latency Chart -->
+                <div class="glass-panel p-5 rounded-2xl lg:col-span-2">
+                    <h3 class="font-bold text-base mb-1">Tempo de Resposta por Horário (Latência do Turno)</h3>
+                    <p class="text-xs text-slate-500 mb-4">Calculado a partir de `venture_turns.created_at - messages.created_at`</p>
+                    <div class="h-60">
+                        <canvas id="latencyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Citações de Documentos Metodológicos -->
+                <div class="glass-panel p-5 rounded-2xl">
+                    <h3 class="font-bold text-base mb-1">Citações do File Search</h3>
+                    <p class="text-xs text-slate-500 mb-4">Fontes mais acessadas em `message_citations`</p>
+                    <div class="space-y-3 text-xs">
+                        <div class="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800/80">
+                            <p class="font-bold">Business-Model-Canvas-v1.pdf</p>
+                            <div class="flex justify-between items-center text-slate-500 mt-1">
+                                <span>Pág. 2 (Validação de Receita)</span>
+                                <span class="font-mono text-brand-600 font-bold">4,120 refs</span>
+                            </div>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800/80">
+                            <p class="font-bold">Canvas-Proposta-de-Valor-v1.pdf</p>
+                            <div class="flex justify-between items-center text-slate-500 mt-1">
+                                <span>Pág. 1 (Encaixe Dores/Analgésicos)</span>
+                                <span class="font-mono text-brand-600 font-bold">3,105 refs</span>
+                            </div>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800/80">
+                            <p class="font-bold">Guia_Perguntas_Criticas_v2.pdf</p>
+                            <div class="flex justify-between items-center text-slate-500 mt-1">
+                                <span>Pág. 3 (Perguntas que criticam)</span>
+                                <span class="font-mono text-brand-600 font-bold">1,185 refs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-database" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-5 rounded-2xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h3 class="font-bold text-base">Status das Tabelas Relacionais (Supabase)</h3>
+                        <p class="text-xs text-slate-500">Métricas de armazenamento e integridade de registros conforme o dicionário</p>
+                    </div>
+                    <span class="text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 w-fit">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Banco Saudável (Supabase Online)
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 text-xs mb-6">
+                    <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center">
+                        <p class="text-slate-500">`conversations`</p>
+                        <p class="text-lg font-bold">1,248</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center">
+                        <p class="text-slate-500">`sessions`</p>
+                        <p class="text-lg font-bold">2,890</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center">
+                        <p class="text-slate-500">`messages`</p>
+                        <p class="text-lg font-bold">10,650</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center">
+                        <p class="text-slate-500">`venture_profiles`</p>
+                        <p class="text-lg font-bold">1,248</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center">
+                        <p class="text-slate-500">`venture_turns`</p>
+                        <p class="text-lg font-bold">14,320</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-center">
+                        <p class="text-slate-500">`webhook_events`</p>
+                        <p class="text-lg font-bold">15,110</p>
+                    </div>
+                </div>
+
+                <!-- Database Live Inspector -->
+                <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                    <div class="bg-slate-100 dark:bg-slate-800 px-4 py-2.5 font-mono text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between">
+                        <span>SELECT * FROM venture_profiles ORDER BY updated_at DESC LIMIT 5;</span>
+                        <span class="text-[10px] bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded">JSONB Query</span>
+                    </div>
+                    <div class="p-4 bg-slate-900 text-emerald-400 font-mono text-xs overflow-x-auto">
+                        <pre><code>[
+  {
+    "id": "f83a21b4-290d-400a-912a-39c0d1eef811",
+    "conversation_id": "c100a910-8201-4122-bfa1-120938102931",
+    "status": "em_andamento",
+    "current_stage": "fontes_receita",
+    "state_version": 7,
+    "state": {
+      "schema_version": 1,
+      "fluxo": {
+        "etapa_atual": "fontes_receita",
+        "modulos_concluidos": ["segmentos_clientes", "proposta_valor", "canais", "relacionamento_clientes"],
+        "modulos_para_revisar": ["estrutura_custos"]
+      },
+      "ideia": {
+        "descricao_atual": "Plataforma B2B para conexão de empreendedores e fornecedores validados."
+      },
+      "hipoteses": [
+        {"id": "h1", "texto": "Fornecedores aceitam pagar comissão de 10%", "status": "aberta", "prioridade": "alta"}
+      ]
+    }
+  }
+]</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="idea-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="glass-panel bg-white dark:bg-slate-900 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-400 flex items-center justify-center font-bold">
+                        <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 id="modal-project-title" class="font-bold text-base">Projeto #1082</h3>
+                        <p id="modal-project-stage" class="text-xs text-slate-500">Estágio: Fontes de Receita</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 text-xs">
+                <!-- Descrição da Ideia -->
+                <div>
+                    <h4 class="font-bold text-slate-400 uppercase tracking-wider mb-1">Descrição Consolidada da Ideia (`venture_profiles.state.ideia`)</h4>
+                    <p id="modal-project-desc" class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-medium leading-relaxed">
+                        --
+                    </p>
+                </div>
+
+                <!-- Canvas Mini-Grid (3x3) -->
+                <div>
+                    <h4 class="font-bold text-slate-400 uppercase tracking-wider mb-2">Visão do Business Model Canvas (Módulos Concluídos)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                            <span class="font-bold text-slate-500 block mb-1">1. Parcerias-Chave</span>
+                            <span id="bmc-m1" class="text-slate-700 dark:text-slate-300">Hubs de Inovação, Contadores Locais</span>
+                        </div>
+                        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                            <span class="font-bold text-slate-500 block mb-1">2. Atividades-Chave</span>
+                            <span id="bmc-m2" class="text-slate-700 dark:text-slate-300">Mapeamento de Demandas e Curadoria</span>
+                        </div>
+                        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                            <span class="font-bold text-slate-500 block mb-1">3. Proposta de Valor</span>
+                            <span id="bmc-m3" class="text-brand-600 dark:text-brand-400 font-bold">Falar em vez de preencher formulários</span>
+                        </div>
+                        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                            <span class="font-bold text-slate-500 block mb-1">4. Relacionamento</span>
+                            <span id="bmc-m4" class="text-slate-700 dark:text-slate-300">Agente provocador com sugestões</span>
+                        </div>
+                        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                            <span class="font-bold text-slate-500 block mb-1">5. Segmentos</span>
+                            <span id="bmc-m5" class="text-slate-700 dark:text-slate-300">Empreendedores em fase inicial</span>
+                        </div>
+                        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                            <span class="font-bold text-slate-500 block mb-1">6. Fontes de Receita</span>
+                            <span id="bmc-m6" class="text-slate-700 dark:text-slate-300">Assinatura + Comissão de Marketplace</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hipóteses & Lacunas Pendentes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-3.5 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/30 dark:bg-amber-950/20">
+                        <h5 class="font-bold text-amber-800 dark:text-amber-400 flex items-center gap-1.5 mb-2">
+                            <i data-lucide="help-circle" class="w-4 h-4"></i> Lacunas Críticas Identificadas
+                        </h5>
+                        <ul id="modal-gaps" class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
+                            <li>Falta validar se fornecedor aceita pagar taxa de adesão.</li>
+                            <li>Sem resposta definida sobre custos de API de transcrição.</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-950/20">
+                        <h5 class="font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5 mb-2">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Hipóteses Validadas
+                        </h5>
+                        <ul id="modal-hypotheses" class="list-disc list-inside space-y-1 text-slate-700 dark:text-slate-300">
+                            <li>Empreendedores preferem áudio a preencher formulário extenso.</li>
+                            <li>Clareza em 1 página aumenta interesse de mentores.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded-lg font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
+                    Fechar Visualização
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Mock for Projects / Ideas Table
+        const mockIdeas = [
+            {
+                id: "PRJ-9021",
+                title: "Plataforma B2B para Conexão de Fornecedores de Startups",
+                stage: "Fontes de Receita",
+                progress: 8, // out of 9
+                hypotheses: "4 / 5",
+                gaps: "2 pendentes",
+                lastActive: "Há 12 min",
+                desc: "Marketplace que conecta empreendedores em ideação a contadores, advogados e designers com ofertas pré-formatadas.",
+                status: "alta_maturidade"
+            },
+            {
+                id: "PRJ-8812",
+                title: "App de Gestão Integrada para Pequenas Marcenarias",
+                stage: "Proposta de Valor",
+                progress: 3,
+                hypotheses: "1 / 3",
+                gaps: "4 pendentes",
+                lastActive: "Há 45 min",
+                desc: "Solução simples via WhatsApp para marceneiros enviarem orçamentos e receberem pagamentos em Pix.",
+                status: "em_andamento"
+            },
+            {
+                id: "PRJ-7651",
+                title: "Co-pilot de Análise de Contratos Imobiliários via IA",
+                stage: "Estrutura de Custos",
+                progress: 7,
+                hypotheses: "5 / 6",
+                gaps: "1 pendente",
+                lastActive: "Há 2 horas",
+                desc: "IA que lê contratos de aluguel e destaca cláusulas abusivas ou divergências em segundos.",
+                status: "alta_maturidade"
+            },
+            {
+                id: "PRJ-6540",
+                title: "Delivery de Comida Saudável por Assinatura Semanal",
+                stage: "Coleta Inicial",
+                progress: 1,
+                hypotheses: "0 / 2",
+                gaps: "5 pendentes",
+                lastActive: "Há 5 horas",
+                desc: "Marmitas congeladas personalizadas por nutricionistas para trabalhadores de home office.",
+                status: "inicial"
+            },
+            {
+                id: "PRJ-5431",
+                title: "SaaS de Automação de Agendamentos para Salões de Beleza",
+                stage: "Canais",
+                progress: 4,
+                hypotheses: "2 / 4",
+                gaps: "3 pendentes",
+                lastActive: "Ontem",
+                desc: "Atendimento automático via WhatsApp para confirmação de horários e redução de no-show.",
+                status: "em_andamento"
+            }
+        ];
+
+        // Initialize Theme Mode
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // Sidebar Handling
+        const sidebar = document.getElementById('sidebar');
+        document.getElementById('openSidebar')?.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+        document.getElementById('closeSidebar')?.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
+
+        function toggleNotifications() {
+            document.getElementById('notifDropdown').classList.toggle('hidden');
+        }
+
+        // Tab Switching Function
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('active', 'text-brand-600', 'bg-brand-50', 'dark:bg-slate-800', 'dark:text-brand-400');
+                btn.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-btn-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('active', 'text-brand-600', 'bg-brand-50', 'dark:bg-slate-800', 'dark:text-brand-400');
+                activeNav.classList.remove('text-slate-600', 'dark:text-slate-400');
+            }
+
+            if (window.innerWidth < 768 && sidebar) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+
+        // Modal Logic
+        function openModal(projectId) {
+            const idea = mockIdeas.find(i => i.id === projectId) || mockIdeas[0];
+            document.getElementById('modal-project-title').textContent = `${idea.id} - ${idea.title}`;
+            document.getElementById('modal-project-stage').textContent = `Estágio Atual: ${idea.stage} (${idea.progress}/9 Módulos)`;
+            document.getElementById('modal-project-desc').textContent = idea.desc;
+            document.getElementById('idea-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('idea-modal').classList.add('hidden');
+        }
+
+        // Render Table Rows
+        function renderIdeasTable() {
+            const tbody = document.getElementById('ideas-table-body');
+            tbody.innerHTML = mockIdeas.map(idea => `
+                <tr class="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td class="p-3.5 pl-5">
+                        <div class="font-bold text-slate-800 dark:text-slate-100">${idea.title}</div>
+                        <div class="text-[11px] font-mono text-slate-400">${idea.id}</div>
+                    </td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-1 rounded-full text-[10px] font-bold ${
+                            idea.progress >= 7 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+                            idea.progress >= 3 ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' :
+                            'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                        }">
+                            ${idea.stage}
+                        </span>
+                    </td>
+                    <td class="p-3.5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-16 bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                                <div class="bg-brand-500 h-full rounded-full" style="width: ${(idea.progress/9)*100}%"></div>
+                            </div>
+                            <span class="font-bold text-[11px]">${idea.progress}/9</span>
+                        </div>
+                    </td>
+                    <td class="p-3.5 text-center font-bold text-emerald-600">${idea.hypotheses}</td>
+                    <td class="p-3.5 text-center font-medium text-amber-600">${idea.gaps}</td>
+                    <td class="p-3.5 text-slate-500">${idea.lastActive}</td>
+                    <td class="p-3.5 text-right pr-5">
+                        <button onclick="openModal('${idea.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded font-semibold transition-colors">
+                            Ver Canvas
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            // 1. Funnel Chart (Horizontal Bar Chart)
+            const ctxFunnel = document.getElementById('funnelChart').getContext('2d');
+            new Chart(ctxFunnel, {
+                type: 'bar',
+                data: {
+                    labels: ['Coleta Inicial', 'Segmentos', 'Proposta Valor', 'Canais', 'Relacionamento', 'Fontes Receita', 'Recursos', 'Atividades', 'Parcerias', 'Estrutura Custos', 'BMC Concluído'],
+                    datasets: [{
+                        label: 'Projetos que alcançaram a etapa',
+                        data: [1248, 1150, 980, 810, 720, 590, 480, 420, 390, 370, 354],
+                        backgroundColor: '#22c55e',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(150, 150, 150, 0.1)' } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 2. Format Pie Chart (Audio vs Text)
+            const ctxPie = document.getElementById('formatPieChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Áudio Transcrito', 'Texto Direto'],
+                    datasets: [{
+                        data: [6840, 3810],
+                        backgroundColor: ['#10b981', '#3b82f6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '70%'
+                }
+            });
+
+            // 3. Activity Chart (Line Chart)
+            const ctxActivity = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctxActivity, {
+                type: 'line',
+                data: {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                    datasets: [
+                        {
+                            label: 'Total de Mensagens',
+                            data: [1200, 1900, 1700, 2100, 2400, 1100, 950],
+                            borderColor: '#3b82f6',
+                            tension: 0.3,
+                            fill: false
+                        },
+                        {
+                            label: 'Sessões Ativas',
+                            data: [320, 450, 410, 520, 600, 280, 210],
+                            borderColor: '#22c55e',
+                            tension: 0.3,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: 'rgba(150, 150, 150, 0.1)' } }
+                    }
+                }
+            });
+
+            // 4. Latency Chart (Operation Tab)
+            const ctxLatency = document.getElementById('latencyChart').getContext('2d');
+            new Chart(ctxLatency, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    datasets: [{
+                        label: 'Latência Média (segundos)',
+                        data: [1.8, 1.5, 2.4, 2.9, 2.7, 2.1],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: 'rgba(150, 150, 150, 0.1)' }, min: 0, max: 4 }
+                    }
+                }
+            });
+        }
+
+        // On Window Load
+        window.onload = function() {
+            lucide.createIcons();
+            renderIdeasTable();
+            initCharts();
+        };
+
+        function updateDashboardData() {
+            // Triggered on filter change
+            console.log("Metodologia atualizada");
+        }
+    </script>
+</body>
+</html>
