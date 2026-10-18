@@ -1,3 +1,11 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "query", "key": "session_id" }],
+      "destination": "/checkout",
+      "permanent": false
+    }
+  ]
 }
