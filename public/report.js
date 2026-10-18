@@ -1,8 +1,6 @@
 const id = new URLSearchParams(window.location.search).get("session_id");
 const title = document.querySelector("#report-title");
 const copy = document.querySelector("#report-copy");
-const statusPage = document.querySelector("#report-status");
-const documentFrame = document.querySelector("#report-document");
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 async function loadAccess() {
@@ -33,9 +31,16 @@ async function loadAccess() {
     if (!state) throw new Error("Unknown report status");
     [title.textContent, copy.textContent] = state;
     if (body.report_status === "ready") {
-      documentFrame.src = `${supabaseUrl}/functions/v1/report-document?session_id=${encodeURIComponent(id)}`;
-      documentFrame.hidden = false;
-      statusPage.hidden = true;
+      const documentResponse = await fetch(
+        `${supabaseUrl}/functions/v1/report-document?session_id=${encodeURIComponent(id)}`,
+      );
+      if (!documentResponse.ok) throw new Error("Report document unavailable");
+      // The report renderer escapes all dynamic customer text. Replacing this
+      // temporary status view makes the generated document occupy the full
+      // /report page, without an iframe or nested scrolling area.
+      document.open();
+      document.write(await documentResponse.text());
+      document.close();
     }
   } catch {
     title.textContent = "Não foi possível validar o acesso.";
