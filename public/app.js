@@ -73,8 +73,8 @@ function showPixPayment(pixCopyAndPaste, pixQrCodeUrl) {
   setStep(2);
   pixTitle.textContent = "Pague R$ 29,90 com Pix.";
   pixDescription.textContent = pixQrCodeUrl
-    ? "Use o QR Code ou o Pix Copia e Cola abaixo. O pagamento será conferido manualmente antes da liberação do relatório."
-    : "Use o Pix Copia e Cola abaixo. O pagamento será conferido manualmente antes da liberação do relatório.";
+    ? "Use o QR Code ou o Pix Copia e Cola abaixo. O pagamento será conferido manualmente antes da liberação do diagnóstico."
+    : "Use o Pix Copia e Cola abaixo. O pagamento será conferido manualmente antes da liberação do diagnóstico.";
 }
 
 function showPaymentPendingState() {
