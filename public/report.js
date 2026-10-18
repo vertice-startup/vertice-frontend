@@ -16,12 +16,20 @@ async function loadAccess() {
     const response = await fetch(`${supabaseUrl}/functions/v1/report-access?session_id=${encodeURIComponent(id)}`);
     const body = await response.json();
     if (!response.ok) throw new Error(body.error ?? "Access validation failed");
-    if (body.paid) {
-      title.textContent = "Pagamento confirmado.";
-      copy.textContent = "Seu relatório completo será exibido aqui na próxima etapa da integração.";
+    if (!body.paid) {
+      window.location.replace(`/?session_id=${encodeURIComponent(id)}&payment_pending=true`);
       return;
     }
-    window.location.replace(`/?session_id=${encodeURIComponent(id)}&payment_pending=true`);
+    const states = {
+      waiting_answers: ["Pagamento aprovado.", "Ainda precisamos concluir as respostas no WhatsApp para preparar seu relatório."],
+      queued: ["Pagamento aprovado.", "Seu relatório entrou na fila de preparação. Volte a esta página em alguns instantes."],
+      running: ["Pagamento aprovado.", "Estamos preparando seu relatório. Volte a esta página em alguns instantes."],
+      failed: ["Pagamento aprovado.", "Houve um problema na preparação do relatório. Nossa equipe precisa revisar esta sessão."],
+      ready: ["Relatório preparado.", "A visualização do documento ainda não está disponível nesta etapa da integração."],
+    };
+    const state = states[body.report_status];
+    if (!state) throw new Error("Unknown report status");
+    [title.textContent, copy.textContent] = state;
   } catch {
     title.textContent = "Não foi possível validar o acesso.";
     copy.textContent = "Tente novamente em alguns instantes.";

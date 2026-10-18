@@ -57,7 +57,7 @@ function showPixPayment(pixCopyAndPaste, pixQrCodeUrl) {
   pixPaymentContent.hidden = false;
   pixPaymentDetails.hidden = false;
   paymentConfirmation.hidden = true;
-  pixTitle.textContent = "Agora, realize o Pix de R$ 29,90.";
+  pixTitle.textContent = "Agora, realize o Pix de R$ 49,90.";
   pixDescription.textContent = "Use o QR Code ou o Pix Copia e Cola abaixo. Seu relatório será liberado após a conferência do pagamento.";
 }
 
