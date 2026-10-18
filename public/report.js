@@ -17,7 +17,7 @@ async function loadAccess() {
     const body = await response.json();
     if (!response.ok) throw new Error(body.error ?? "Access validation failed");
     if (!body.paid) {
-      window.location.replace(`/?session_id=${encodeURIComponent(id)}&payment_pending=true`);
+      window.location.replace(`/checkout?session_id=${encodeURIComponent(id)}&payment_pending=true`);
       return;
     }
     const states = {
