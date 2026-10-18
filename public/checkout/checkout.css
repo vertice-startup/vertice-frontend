@@ -62,6 +62,8 @@ input[aria-invalid="true"] { border-color: var(--err); box-shadow: 0 0 0 4px rgb
 .pix-details { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 32px; align-items: start; animation: entra .5s var(--curva) both; }
 .qr { background: #fff; padding: 14px; border-radius: 20px; }
 .qr img { display: block; width: 100%; height: auto; }
+.qr:has(img[hidden]) { display: none; }
+.pix-details:has(img[hidden]) { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
 .pix-copy { display: grid; gap: 10px; }
 .howto { margin: 0 0 10px; padding-left: 20px; color: var(--tx2); font-size: 14.5px; display: grid; gap: 6px; }
 .howto b { color: var(--tx); }

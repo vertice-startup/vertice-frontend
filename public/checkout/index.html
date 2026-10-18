@@ -54,7 +54,7 @@
 
           <div id="pix-payment-content" hidden>
             <div id="pix-payment-details" class="pix-details">
-              <div class="qr"><img id="pix-qr-code" src="/pix-qrcode-placeholder.svg" alt="QR Code Pix para pagamento" tabindex="-1" /></div>
+              <div class="qr"><img id="pix-qr-code" alt="QR Code Pix para pagamento" tabindex="-1" hidden /></div>
               <div class="pix-copy">
                 <ol class="howto">
                   <li>Abra o app do seu banco e escolha <b>Pix</b>.</li>
@@ -70,9 +70,10 @@
 
             <aside class="payment-confirmation" id="payment-confirmation" hidden aria-live="polite" tabindex="-1">
               <span class="ok" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
-              <h3>Recebemos sua confirmação.</h3>
-              <p class="thank-you">Obrigado por confiar na Vértice. Agora a gente transforma suas respostas num plano claro.</p>
-              <p class="payment-deadline">Seu relatório é liberado em até 1 dia útil, assim que o pagamento for conferido.</p>
+              <h3>Aguardando conferência do Pix.</h3>
+              <p class="thank-you">Obrigado por confiar na Vértice. Guarde o link enviado para o seu WhatsApp.</p>
+              <p>Vamos conferir o pagamento antes de liberar o acesso ao relatório, em até 1 dia útil.</p>
+              <p class="payment-deadline">A declaração de pagamento não equivale à confirmação do Pix.</p>
               <a class="btn btn-pri" id="report-status-link" href="/report">Ver status do relatório <svg class="seta" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
               <a class="btn btn-sec" href="https://www.instagram.com/vertice.framework/" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle></svg>Dúvidas? Fale com o suporte</a>
             </aside>
